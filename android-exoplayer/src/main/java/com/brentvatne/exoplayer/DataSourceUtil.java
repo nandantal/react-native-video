@@ -10,6 +10,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 
 import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
@@ -61,7 +62,7 @@ public class DataSourceUtil {
 
     public static HttpDataSource.Factory getDefaultHttpDataSourceFactory(ReactContext context, DefaultBandwidthMeter bandwidthMeter, Map<String, String> requestHeaders) {
         if (defaultHttpDataSourceFactory == null || (requestHeaders != null && !requestHeaders.isEmpty())) {
-            defaultHttpDataSourceFactory = buildHttpDataSourceFactory(context, bandwidthMeter, requestHeaders);
+            defaultHttpDataSourceFactory = buildHttpDataSourceFactory(context, requestHeaders);
         }
         return defaultHttpDataSourceFactory;
     }
@@ -76,7 +77,7 @@ public class DataSourceUtil {
 
     private static DataSource.Factory buildDataSourceFactory(ReactContext context, DefaultBandwidthMeter bandwidthMeter, Map<String, String> requestHeaders) {
         return new DefaultDataSourceFactory(context, bandwidthMeter,
-                buildHttpDataSourceFactory(context, bandwidthMeter, requestHeaders));
+                buildHttpDataSourceFactory(context, requestHeaders));
     }
 
     private static HttpDataSource.Factory buildHttpDataSourceFactory(ReactContext context, DefaultBandwidthMeter bandwidthMeter, Map<String, String> requestHeaders) {
@@ -91,4 +92,13 @@ public class DataSourceUtil {
 
         return okHttpDataSourceFactory;
     }
+
+    private static HttpDataSource.Factory buildHttpDataSourceFactory(ReactContext context, Map<String, String> requestHeaders) {
+      DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory(getUserAgent(context));
+
+      if (requestHeaders != null)
+          factory.getDefaultRequestProperties().set(requestHeaders);
+
+      return factory;
+  }
 }
